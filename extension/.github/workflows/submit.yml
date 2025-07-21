@@ -1,0 +1,48 @@
+name: "Submit to Web Store"
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install Bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "latest"
+
+      # Optional: Cache Bun’s global package cache
+      - name: Cache Bun dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      # Install project dependencies with Bun
+      - name: Install dependencies
+        run: bun install
+
+      # (Optional) Setup Node.js if still needed
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      # Build and package with Bun
+      - name: Build the extension
+        run: bun run build
+
+      - name: Package the extension into a zip artifact
+        run: bun run package
+
+      # Publish to the browser platform
+      - name: Browser Platform Publish
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: ${{ secrets.SUBMIT_KEYS }}
+          artifact: build/chrome-mv3-prod.zip
