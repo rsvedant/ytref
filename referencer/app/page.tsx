@@ -1,9 +1,15 @@
-import Image from "next/image";
+import { Button } from "@heroui/button";
 
 export default function Home() {
   return (
     <div>
-      ts is da referencer app.
+      <h1>Referencer App</h1>
+      <p>
+        ts is da referencer app.
+      </p>
+      <Button>
+        hello
+      </Button>
     </div>
   )
 }
