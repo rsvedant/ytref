@@ -2,14 +2,14 @@
 
 import { signIn, signUp, useSession } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 export default function AuthPage() {
   const { data: session } = useSession()
-
+  const router = useRouter()
   // Redirect to dashboard if already authenticated
   if (session) {
-    redirect("/dashboard")
+    router.replace("/dashboard")
   }
 
   const handleEmailSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
