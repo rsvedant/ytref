@@ -1,15 +1,5 @@
-import { Button } from "@heroui/button";
+import { redirect } from "next/navigation"
 
 export default function Home() {
-  return (
-    <div>
-      <h1>Referencer App</h1>
-      <p>
-        ts is da referencer app.
-      </p>
-      <Button>
-        hello
-      </Button>
-    </div>
-  )
+  redirect("/auth")
 }
