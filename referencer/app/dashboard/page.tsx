@@ -1,25 +1,18 @@
-"use client"
-
-import { useSession, signOut } from "@/lib/auth-client"
-import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
+import { auth } from "@/lib/auth"
+import { ClientSignOutButton } from "./client-sign-out-button"
 
-export default function DashboardPage() {
-  const { data: session } = useSession()
+export default async function DashboardPage() {
 
   // Redirect to auth if not authenticated
-  if (!session) {
-    redirect("/auth")
-  }
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
 
-  const handleSignOut = async () => {
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          window.location.href = "/auth"
-        }
-      }
-    })
+  if (!session) {
+    console.log("No session found, redirecting to sign-in")
+    redirect("/auth/sign-in")
   }
 
   return (
@@ -34,11 +27,9 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">
-                Welcome, {session.user.name}
+                Welcome, {session?.user?.name}
               </span>
-              <Button onClick={handleSignOut} variant="outline" size="sm">
-                Sign out
-              </Button>
+              <ClientSignOutButton />
             </div>
           </div>
         </div>
