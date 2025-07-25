@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
 import { useState } from "react"
+import { Eye, Trash2 } from "lucide-react"
 
 interface Clip {
   id: string
@@ -19,9 +20,13 @@ interface Clip {
 export const ClipHoverEffect = ({
   clips,
   className,
+  onViewClip,
+  onDeleteClip,
 }: {
   clips: Clip[]
   className?: string
+  onViewClip?: (clip: Clip) => void
+  onDeleteClip?: (clipId: string) => void
 }) => {
   let [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
@@ -56,7 +61,7 @@ export const ClipHoverEffect = ({
               />
             )}
           </AnimatePresence>
-          <ClipCard clip={clip} />
+          <ClipCard clip={clip} onViewClip={onViewClip} onDeleteClip={onDeleteClip} />
         </div>
       ))}
     </div>
@@ -66,11 +71,16 @@ export const ClipHoverEffect = ({
 export const ClipCard = ({
   clip,
   className,
+  onViewClip,
+  onDeleteClip,
 }: {
   clip: Clip
   className?: string
+  onViewClip?: (clip: Clip) => void
+  onDeleteClip?: (clipId: string) => void
 }) => {
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -84,6 +94,32 @@ export const ClipCard = ({
 
   const getYouTubeWatchUrl = (videoId: string, startTime: number) => {
     return `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(startTime)}s`
+  }
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!onDeleteClip || isDeleting) return
+
+    if (confirm('Are you sure you want to delete this clip?')) {
+      setIsDeleting(true)
+      try {
+        const response = await fetch(`/api/clips/${clip.id}`, {
+          method: 'DELETE',
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to delete clip')
+        }
+
+        onDeleteClip(clip.id)
+      } catch (error) {
+        console.error('Error deleting clip:', error)
+        alert('Failed to delete clip. Please try again.')
+      } finally {
+        setIsDeleting(false)
+      }
+    }
   }
 
   return (
@@ -153,7 +189,7 @@ export const ClipCard = ({
           </ClipMetadata>
           
           {/* Action Buttons */}
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex gap-2 items-center">
             <motion.a
               href={getYouTubeWatchUrl(clip.videoId, clip.startTime)}
               target="_blank"
@@ -164,9 +200,38 @@ export const ClipCard = ({
             >
               Watch on YouTube
             </motion.a>
+            
+            {onViewClip && (
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onViewClip(clip)
+                }}
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="View/Edit Clip"
+              >
+                <Eye size={16} />
+              </motion.button>
+            )}
+            
+            {onDeleteClip && (
+              <motion.button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="p-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 text-white rounded transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Delete Clip"
+              >
+                <Trash2 size={16} />
+              </motion.button>
+            )}
+            
             {clip.shareSlug && (
               <motion.button
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
+                className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
