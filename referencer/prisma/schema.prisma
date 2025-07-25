@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
-  output         = "../generated/prisma"
+  output          = "../generated/prisma"
 }
 
 datasource db {
@@ -10,8 +10,8 @@ datasource db {
 }
 
 model Clip {
-  id         String   @id @default(cuid())
-  user       User     @relation(fields: [userId], references: [id])
+  id         String     @id @default(cuid())
+  user       User       @relation(fields: [userId], references: [id])
   userId     String
 
   videoId    String
@@ -21,29 +21,63 @@ model Clip {
   startTime  Float
   endTime    Float
 
-  isPublic   Boolean  @default(false)
-  shareSlug  String?  @unique
+  isPublic   Boolean    @default(false)
+  shareSlug  String?    @unique
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  clipTags   ClipTag[]  // relations to per-clip tags
 
   @@map("clip")
 }
 
+model Tag {
+  id        String     @id @default(cuid())
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String
+
+  name      String
+
+  clipTags  ClipTag[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([userId, name])  // each user’s tag names are unique
+  @@map("tag")
+}
+
+model ClipTag {
+  id        String   @id @default(cuid())
+  clip      Clip     @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  clipId    String
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String
+
+  rating    Int      @default(0)  // likability rating for this clip-tag pairing
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clipId, tagId])  // prevent duplicate tag assignments
+  @@map("clip_tag")
+}
+
 model User {
-  id            String    @id
+  id            String    @id @default(cuid())
   name          String
-  email         String
+  email         String    @unique
   emailVerified Boolean
   image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   sessions      Session[]
   accounts      Account[]
-
   clips         Clip[]
+  tags          Tag[]
 
-  @@unique([email])
   @@map("user")
 }
 
