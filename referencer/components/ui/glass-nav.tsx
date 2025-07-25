@@ -1,18 +1,10 @@
-"use client"
-
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
 import { Triangle } from "lucide-react"
 import { ModeToggle } from "./theme-toggle"
-
-const navItems = [
-	{ href: "/", label: "Home" },
-	{ href: "/dashboard", label: "Dashboard" },
-]
+import { NavLinks } from "./nav-links"
+import { UserButtonWrapper } from "./user-button-wrapper"
 
 export function GlassNav() {
-	const pathname = usePathname()
 
 	return (
 		<>
@@ -38,25 +30,11 @@ export function GlassNav() {
 								<Triangle className="h-5 w-5" />
 								<span className="font-bold">YT Referencer</span>
 							</Link>
-						</div>
-						<ul className="nav-list hidden sm:flex">
-							{navItems.map((item) => (
-								<li key={item.href}>
-									<Link
-										href={item.href}
-										className={cn(
-											"nav-item",
-											pathname === item.href && "active"
-										)}
-									>
-										{item.label}
-									</Link>
-								</li>
-							))}
-						</ul>
+						</div>     
+                        <NavLinks />
 						<div className="flex items-center gap-4">
 							<ModeToggle />
-							{/* Add account management button here */}
+							<UserButtonWrapper />
 						</div>
 					</div>
 				</div>

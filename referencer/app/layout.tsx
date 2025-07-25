@@ -37,14 +37,13 @@ export default function RootLayout({
             <div className="h-full w-full bg-white dark:bg-black [background-size:20px_20px] [background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]" />
           </div>
           
-          {/* Navigation */}
-          <div className="fixed top-4 left-0 right-0 z-30 flex justify-center px-4">
-            <GlassNav />
-          </div>
-          
-          {/* Main content */}
           <div className="relative z-10">
-            <Providers>{children}</Providers>
+            <Providers>
+              <div className="fixed top-4 left-0 right-0 z-30 flex justify-center px-4">
+                <GlassNav />
+              </div>
+              {children}
+            </Providers>
           </div>
         </ThemeProvider>
       </body>

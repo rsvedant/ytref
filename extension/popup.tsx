@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { postClip } from "./utils/api";
 
 function IndexPopup() {
@@ -11,7 +11,30 @@ function IndexPopup() {
   );
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    if (chrome.cookies) {
+      chrome.cookies.get(
+        { url: "http://localhost:3000", name: "better-auth.session-token" },
+        function (cookie) {
+          if (cookie) {
+            console.log("Session cookie found on popup load:", cookie.value);
+          } else {
+            console.log("Session cookie not found on popup load.");
+          }
+        }
+      );
+    }
+  }, []);
+
   const handleSaveClip = async () => {
+    if (chrome.cookies) {
+      chrome.cookies.get(
+        { url: "http://localhost:3000", name: "better-auth.session-token" },
+        function (cookie) {
+          console.log("Cookie value before sending request:", cookie ? cookie.value : "not found");
+        }
+      );
+    }
     try {
       await postClip({ videoId, startTime, endTime, title, thumbnail });
       setMessage("Clip saved!");
