@@ -139,3 +139,55 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+
+export async function GET(request: NextRequest) {
+    const origin = request.headers.get("origin")
+    const corsHeaders = getCorsHeaders(origin)
+
+    try {
+        // Check authentication
+        const session = await auth.api.getSession({
+            headers: await headers()
+        })
+
+        if (!session) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401, headers: corsHeaders }
+            )
+        }
+
+        // Fetch all clips for the authenticated user
+        const clips = await prisma.clip.findMany({
+            where: {
+                userId: session.user.id
+            },
+            select: {
+                id: true,
+                videoId: true,
+                title: true,
+                thumbnail: true,
+                startTime: true,
+                endTime: true,
+                isPublic: true,
+                shareSlug: true,
+                createdAt: true,
+                updatedAt: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+
+        return NextResponse.json(
+            { clips },
+            { status: 200, headers: corsHeaders }
+        )
+    } catch (error) {
+        console.error("Error fetching clips:", error)
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500, headers: corsHeaders }
+        )
+    }
+}
