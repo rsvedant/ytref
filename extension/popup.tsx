@@ -287,12 +287,27 @@ function IndexPopup() {
           <Button
             onClick={handleSaveClip}
             disabled={saving}
-            className="w-full h-12 bg-gray-800 text-white hover:bg-gray-700 border border-gray-600 font-medium text-base rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`w-full h-12 font-medium text-base rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              message.includes("success") 
+                ? "bg-green-800 text-white hover:bg-green-700 border border-green-600" 
+                : message && !message.includes("success")
+                ? "bg-red-800 text-white hover:bg-red-700 border border-red-600"
+                : "bg-gray-800 text-white hover:bg-gray-700 border border-gray-600"
+            }`}
           >
             {saving ? (
               <div className="flex items-center space-x-3">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Saving your clip...</span>
+              </div>
+            ) : message ? (
+              <div className="flex items-center space-x-3">
+                {message.includes("success") ? (
+                  <CheckCircle className="w-5 h-5 text-white" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-white" />
+                )}
+                <span>{message}</span>
               </div>
             ) : (
               <div className="flex items-center space-x-3">
@@ -301,24 +316,6 @@ function IndexPopup() {
               </div>
             )}
           </Button>
-
-          {/* Status message */}
-          {message && (
-            <div className={`p-4 rounded-lg border backdrop-blur-sm ${
-              message.includes("success") 
-                ? "bg-green-950/50 border-green-800/50 text-green-200" 
-                : "bg-red-950/50 border-red-800/50 text-red-200"
-            }`}>
-              <div className="flex items-center space-x-3">
-                {message.includes("success") ? (
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-red-400" />
-                )}
-                <span className="font-medium">{message}</span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
