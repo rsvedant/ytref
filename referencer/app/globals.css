@@ -125,22 +125,22 @@
 
 /* Glass Nav Container */
 .glass-nav {
-  --bg-color: oklch(from var(--secondary) h s l / 0.25);
-  --highlight: oklch(from var(--secondary-foreground) h s l / 0.5);
-  --text: var(--secondary-foreground);
-  
+  --bg-color: rgba(255, 255, 255, 0.15);
+  --highlight: rgba(255, 255, 255, 0.3);
+  --text: var(--foreground);
+
   position: relative;
   border-radius: 12px;
   overflow: hidden;
   background: transparent;
-  border: 1px solid oklch(from var(--border) h s l / 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .dark .glass-nav {
-  --bg-color: oklch(from var(--card) h s l / 0.5);
-  --highlight: oklch(from var(--secondary-foreground) h s l / 0.1);
-  --text: var(--secondary-foreground);
-  border: 1px solid var(--border);
+  --bg-color: rgba(255, 255, 255, 0.1);
+  --highlight: rgba(255, 255, 255, 0.15);
+  --text: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-filter,
