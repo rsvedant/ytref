@@ -27,7 +27,7 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const origin = request.headers.get("origin")
     const corsHeaders = getCorsHeaders(origin)
@@ -38,7 +38,7 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders })
         }
 
-        const { id: clipId } = params
+        const { id: clipId } = await params
         if (!clipId) {
             return NextResponse.json({ error: "Clip ID is required" }, { status: 400, headers: corsHeaders })
         }
@@ -79,7 +79,7 @@ export async function GET(
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const origin = request.headers.get("origin")
     const corsHeaders = getCorsHeaders(origin)
@@ -90,7 +90,7 @@ export async function POST(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders })
         }
 
-        const { id: clipId } = params
+        const { id: clipId } = await params
         if (!clipId) {
             return NextResponse.json({ error: "Clip ID is required" }, { status: 400, headers: corsHeaders })
         }
@@ -141,7 +141,7 @@ export async function POST(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const origin = request.headers.get("origin")
     const corsHeaders = getCorsHeaders(origin)
@@ -152,7 +152,7 @@ export async function DELETE(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders })
         }
 
-        const { id: clipId } = params
+        const { id: clipId } = await params
         if (!clipId) {
             return NextResponse.json({ error: "Clip ID is required" }, { status: 400, headers: corsHeaders })
         }
