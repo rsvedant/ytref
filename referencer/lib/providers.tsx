@@ -20,6 +20,10 @@ export function Providers({ children }: { children: ReactNode }) {
             providers: ["google"]
           }}
           Link={Link}
+          captcha={{
+            provider: "google-recaptcha-v3",
+            siteKey: process.env.GOOGLE_CAPTCHA_SITE_KEY || ""
+          }}
         >
           {children}
         </AuthUIProvider>
