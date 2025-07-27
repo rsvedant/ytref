@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-
-const allowedOrigins = [
-    "chrome-extension://gnnmpolacegkhdellgjmpjbmnhabloop",
-    "http://localhost:3000"
-]
+import { allowedOrigins } from '@/lib/cors'
 
 function getCorsHeaders(origin: string | null) {
     const headers = new Headers()

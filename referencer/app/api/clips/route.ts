@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { allowedOrigins } from '@/lib/cors'
 
 interface CreateClipBody {
     videoId: string
@@ -10,11 +11,6 @@ interface CreateClipBody {
     startTime: number
     endTime: number
 }
-
-const allowedOrigins = [
-    "chrome-extension://gnnmpolacegkhdellgjmpjbmnhabloop",
-    "http://localhost:3000"
-]
 
 function getCorsHeaders(origin: string | null) {
     const headers = new Headers()

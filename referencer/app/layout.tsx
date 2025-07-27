@@ -4,7 +4,6 @@ import "./globals.css"
 import { Providers } from "@/lib/providers" 
 import { ThemeProvider } from "@/components/theme-provider"
 import { GlassNav } from "@/components/ui/glass-nav"
-import GridSmallBackgroundDemo from "@/components/ui/grid-small-background-demo"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
