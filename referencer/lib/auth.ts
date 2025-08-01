@@ -6,6 +6,7 @@ import { prisma } from "./prisma"
 
 export const authOptions: BetterAuthOptions = {
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+  secret: process.env.BETTER_AUTH_SECRET as string,
   trustedOrigins: allowedOrigins,
   emailAndPassword: {
     enabled: true, 
