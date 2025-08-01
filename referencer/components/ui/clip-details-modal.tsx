@@ -1,8 +1,16 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Save, Trash2, ExternalLink, Timer, Edit3, Clock } from "lucide-react"
 import { ClipDetailsSkeleton } from "./clip-details-skeleton"
+import { TagSelector } from "./tag-components"
+import { useTagsSingleton } from "@/lib/hooks/use-tags-singleton"
+
+interface ClipTag {
+  id: string
+  name: string
+  rating: number
+}
 
 interface Clip {
   id: string
@@ -23,6 +31,7 @@ interface ClipDetailsModalProps {
   onClose: () => void
   onUpdate: (updatedClip: Clip) => void
   onDelete: (clipId: string) => void
+  onTagsUpdated?: (clipId: string) => Promise<void>
 }
 
 export const ClipDetailsModal = ({ 
@@ -30,23 +39,112 @@ export const ClipDetailsModal = ({
   isOpen, 
   onClose, 
   onUpdate, 
-  onDelete 
+  onDelete,
+  onTagsUpdated
 }: ClipDetailsModalProps) => {
   const [editedClip, setEditedClip] = useState<Clip | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSkeletonVisible, setIsSkeletonVisible] = useState(true)
+  
+  // Tags functionality  
+  const { tags, createTag } = useTagsSingleton()
+  const [clipTags, setClipTags] = useState<ClipTag[]>([])
+  
+  // Fetch tags for a specific clip
+  const fetchClipTags = useCallback(async (clipId: string) => {
+    try {
+      const response = await fetch(`/api/clips/${clipId}/tags`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch clip tags')
+      }
+      const data = await response.json()
+      setClipTags(data.tags)
+    } catch (err) {
+      console.error('Error fetching clip tags:', err)
+      setClipTags([])
+    }
+  }, [])
+
+  // Add tag to clip
+  const addTagToClip = useCallback(async (clipId: string, tagId: string, rating: number) => {
+    try {
+      const response = await fetch(`/api/clips/${clipId}/tags`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tagId, rating }),
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to add tag to clip')
+      }
+      
+      // Get the updated tag from the response instead of making another API call
+      const result = await response.json()
+      if (result.clipTag?.tag) {
+        // Update local state with the new tag
+        setClipTags(prev => {
+          const newTag = {
+            id: result.clipTag.tag.id,
+            name: result.clipTag.tag.name,
+            rating: result.clipTag.rating
+          }
+          return [...prev.filter(t => t.id !== tagId), newTag]
+        })
+      }
+      
+      // Notify parent component to update its cache
+      if (onTagsUpdated) {
+        await onTagsUpdated(clipId)
+      }
+    } catch (err) {
+      console.error('Error adding tag to clip:', err)
+    }
+  }, [tags, onTagsUpdated])
+
+  // Remove tag from clip
+  const removeTagFromClip = useCallback(async (clipId: string, tagId: string) => {
+    try {
+      const response = await fetch(`/api/clips/${clipId}/tags`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tagId }),
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to remove tag from clip')
+      }
+      
+      // Update local state by removing the tag
+      setClipTags(prev => prev.filter(t => t.id !== tagId))
+      
+      // Notify parent component to update its cache
+      if (onTagsUpdated) {
+        await onTagsUpdated(clipId)
+      }
+    } catch (err) {
+      console.error('Error removing tag from clip:', err)
+    }
+  }, [onTagsUpdated])
 
   useEffect(() => {
     if (clip) {
       setEditedClip({ ...clip })
+      // Only fetch tags if we don't already have them
+      fetchClipTags(clip.id)
       // Show skeleton briefly for smooth loading feeling
       setIsSkeletonVisible(true)
       const timer = setTimeout(() => setIsSkeletonVisible(false), 300)
       return () => clearTimeout(timer)
     }
-  }, [clip])
+  }, [clip?.id]) // Only depend on clip.id, not the entire clip object or fetchClipTags
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -325,6 +423,25 @@ export const ClipDetailsModal = ({
                   <label htmlFor="isPublic" className="text-sm text-card-foreground">
                     Make clip public
                   </label>
+                </div>
+
+                {/* Tag Management */}
+                <div className="border border-border rounded-lg p-4">
+                  <TagSelector
+                    availableTags={tags}
+                    selectedTags={clipTags}
+                    onTagAdd={async (tagId: string, rating: number) => {
+                      if (clip) {
+                        await addTagToClip(clip.id, tagId, rating)
+                      }
+                    }}
+                    onTagRemove={async (tagId: string) => {
+                      if (clip) {
+                        await removeTagFromClip(clip.id, tagId)
+                      }
+                    }}
+                    onCreateTag={createTag}
+                  />
                 </div>
               </div>
 

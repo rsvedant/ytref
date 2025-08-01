@@ -107,8 +107,11 @@ export async function POST(
             return NextResponse.json({ error: "tagId must be a string" }, { status: 400, headers: corsHeaders })
         }
         
-        if (rating === undefined || typeof rating !== 'number') {
-            return NextResponse.json({ error: "rating must be a number" }, { status: 400, headers: corsHeaders })
+        if (rating === undefined || typeof rating !== "number" || rating < 1 || rating > 5) {
+            return NextResponse.json(
+                { error: "rating must be a number between 1 and 5" },
+                { status: 400 }
+            )
         }
 
         const clipTag = await prisma.clipTag.upsert({
@@ -126,9 +129,22 @@ export async function POST(
             update: {
                 rating,
             },
+            include: {
+                tag: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
         })
 
-        return NextResponse.json(clipTag, { status: 201, headers: corsHeaders })
+        return NextResponse.json({ 
+            clipTag: {
+                ...clipTag,
+                tag: clipTag.tag
+            }
+        }, { status: 201, headers: corsHeaders })
     } catch (error) {
         console.error("Error upserting clip tag:", error)
         return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders })

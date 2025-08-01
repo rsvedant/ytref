@@ -2,7 +2,14 @@
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
 import { useState } from "react"
-import { Eye, Trash2 } from "lucide-react"
+import { Eye, Trash2, Star } from "lucide-react"
+import { TagBadge } from "./tag-components"
+
+interface ClipTag {
+  id: string
+  name: string
+  rating: number
+}
 
 interface Clip {
   id: string
@@ -19,11 +26,13 @@ interface Clip {
 
 export const ClipHoverEffect = ({
   clips,
+  clipTags,
   className,
   onViewClip,
   onDeleteClip,
 }: {
   clips: Clip[]
+  clipTags: Record<string, ClipTag[]>
   className?: string
   onViewClip?: (clip: Clip) => void
   onDeleteClip?: (clipId: string) => void
@@ -61,7 +70,12 @@ export const ClipHoverEffect = ({
               />
             )}
           </AnimatePresence>
-          <ClipCard clip={clip} onViewClip={onViewClip} onDeleteClip={onDeleteClip} />
+          <ClipCard 
+            clip={clip} 
+            clipTags={clipTags[clip.id] || []}
+            onViewClip={onViewClip} 
+            onDeleteClip={onDeleteClip} 
+          />
         </div>
       ))}
     </div>
@@ -70,11 +84,13 @@ export const ClipHoverEffect = ({
 
 export const ClipCard = ({
   clip,
+  clipTags,
   className,
   onViewClip,
   onDeleteClip,
 }: {
   clip: Clip
+  clipTags: ClipTag[]
   className?: string
   onViewClip?: (clip: Clip) => void
   onDeleteClip?: (clipId: string) => void
@@ -176,6 +192,23 @@ export const ClipCard = ({
         {/* Card Content */}
         <div className="p-4">
           <ClipTitle>{clip.title}</ClipTitle>
+          
+          {/* Tags */}
+          {clipTags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {clipTags.map((tag) => (
+                <TagBadge
+                  key={tag.id}
+                  tag={tag}
+                  rating={tag.rating}
+                  variant="secondary"
+                  showRating={true}
+                  className="text-xs"
+                />
+              ))}
+            </div>
+          )}
+          
           <ClipDuration>
             {formatTime(clip.startTime)} - {formatTime(clip.endTime)}
           </ClipDuration>
