@@ -1,5 +1,6 @@
 export const allowedOrigins = [
     "chrome-extension://gnnmpolacegkhdellgjmpjbmnhabloop",
+    "localhost:3000",
     "http://localhost:3000", 
     "https://www.ytref.vercel.app",
     "https://www.makemeramovie.com",

@@ -1,6 +1,12 @@
 import { createAuthClient } from "better-auth/react"
+import { authOptions } from "./auth"
+
 export const authClient = createAuthClient({
-    baseURL: process.env.NEXT_PUBLIC_API_URL
+    ...authOptions,
+    captcha: {
+        provider: "google-recaptcha-v3",
+        siteKey: process.env.GOOGLE_CAPTCHA_SITE_KEY,
+    },
 })
 
 export const { signIn, signUp, signOut, useSession } = authClient
