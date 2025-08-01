@@ -1,12 +1,8 @@
 import { createAuthClient } from "better-auth/react"
-import { authOptions } from "./auth"
-
+import { allowedOrigins } from "./cors"
 export const authClient = createAuthClient({
-    ...authOptions,
-    captcha: {
-        provider: "google-recaptcha-v3",
-        siteKey: process.env.GOOGLE_CAPTCHA_SITE_KEY,
-    },
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    trustedOrigins: allowedOrigins
 })
 
 export const { signIn, signUp, signOut, useSession } = authClient

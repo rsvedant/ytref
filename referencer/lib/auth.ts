@@ -4,9 +4,8 @@ import type { BetterAuthOptions } from "better-auth"
 import { allowedOrigins } from "@/lib/cors"
 import { prisma } from "./prisma"
 
-export const authOptions: BetterAuthOptions = {
+const authOptions: BetterAuthOptions = {
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  secret: process.env.BETTER_AUTH_SECRET as string,
   trustedOrigins: allowedOrigins,
   emailAndPassword: {
     enabled: true, 
